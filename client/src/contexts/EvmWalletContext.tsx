@@ -75,6 +75,36 @@ function detectWallets(): WalletInfo[] {
         });
         detectedProviders.add('coinbase');
       }
+    } else if (info.rdns?.includes('okx') || info.rdns?.includes('okex') || info.name?.toLowerCase().includes('okx')) {
+      if (!detectedProviders.has('okx')) {
+        wallets.push({
+          name: 'OKX Wallet',
+          provider: 'okx',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('okx');
+      }
+    } else if (info.rdns?.includes('bitget') || info.rdns?.includes('bitkeep') || info.name?.toLowerCase().includes('bitget')) {
+      if (!detectedProviders.has('bitget')) {
+        wallets.push({
+          name: 'Bitget Wallet',
+          provider: 'bitget',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('bitget');
+      }
+    } else if (info.rdns?.includes('binance') || info.name?.toLowerCase().includes('binance')) {
+      if (!detectedProviders.has('binance')) {
+        wallets.push({
+          name: 'Binance Wallet',
+          provider: 'binance',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('binance');
+      }
     }
   }
   
@@ -111,15 +141,22 @@ function detectWallets(): WalletInfo[] {
     }
   }
   
-  // Check specific wallet objects
-  if ((window as any).okxwallet && !detectedProviders.has('okx')) {
-    wallets.push({
-      name: 'OKX Wallet',
-      provider: 'okx',
-      isInstalled: true,
-      ethereum: (window as any).okxwallet,
-    });
-    detectedProviders.add('okx');
+  // Check specific wallet objects - OKX with multiple detection patterns
+  if (!detectedProviders.has('okx')) {
+    // Try multiple OKX injection patterns
+    const okxProvider = (window as any).okxwallet || 
+                       (window as any).okex || 
+                       ((window as any).ethereum?.isOkxWallet ? (window as any).ethereum : null);
+    
+    if (okxProvider) {
+      wallets.push({
+        name: 'OKX Wallet',
+        provider: 'okx',
+        isInstalled: true,
+        ethereum: okxProvider,
+      });
+      detectedProviders.add('okx');
+    }
   }
   
   if ((window as any).bitkeep?.ethereum && !detectedProviders.has('bitget')) {
@@ -151,6 +188,13 @@ function detectWallets(): WalletInfo[] {
       ethereum: window.ethereum,
     });
   }
+  
+  // Debug logging
+  console.log('[Wallet Detection] Found wallets:', wallets.map(w => w.name));
+  console.log('[Wallet Detection] EIP-6963 providers:', Array.from(eip6963Providers.keys()));
+  console.log('[Wallet Detection] window.okxwallet:', !!(window as any).okxwallet);
+  console.log('[Wallet Detection] window.okex:', !!(window as any).okex);
+  console.log('[Wallet Detection] window.ethereum.isOkxWallet:', !!((window as any).ethereum?.isOkxWallet));
   
   return wallets;
 }

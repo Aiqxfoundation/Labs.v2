@@ -50,8 +50,8 @@ function getAvailableWallets(): WalletProvider[] {
     wallets.push('phantom');
   }
   
-  // OKX Wallet
-  if (window.okxwallet?.solana) {
+  // OKX Wallet - check multiple patterns
+  if (window.okxwallet?.solana || (window as any).okex?.solana) {
     wallets.push('okx');
   }
   
@@ -65,6 +65,14 @@ function getAvailableWallets(): WalletProvider[] {
     wallets.push('backpack');
   }
   
+  // Debug logging
+  console.log('[Solana Wallet Detection] Found wallets:', wallets);
+  console.log('[Solana Wallet Detection] window.solana:', !!window.solana);
+  console.log('[Solana Wallet Detection] window.okxwallet.solana:', !!(window as any).okxwallet?.solana);
+  console.log('[Solana Wallet Detection] window.okex:', !!(window as any).okex);
+  console.log('[Solana Wallet Detection] window.solflare:', !!window.solflare);
+  console.log('[Solana Wallet Detection] window.backpack:', !!window.backpack);
+  
   return wallets;
 }
 
@@ -75,7 +83,7 @@ function getProviderByType(type: WalletProvider): SolanaProvider | null {
     case 'phantom':
       return window.solana?.isPhantom ? window.solana : null;
     case 'okx':
-      return window.okxwallet?.solana || null;
+      return window.okxwallet?.solana || (window as any).okex?.solana || null;
     case 'solflare':
       return window.solflare || null;
     case 'backpack':

@@ -22,6 +22,7 @@ const ManageAuthorities = lazy(() => import("@/pages/manage-authorities"));
 const HelpPage = lazy(() => import("@/pages/help"));
 const SettingsPage = lazy(() => import("@/pages/settings"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const WalletDiagnostics = lazy(() => import("@/pages/wallet-diagnostics"));
 
 // Solana-specific tool pages
 const SolanaMint = lazy(() => import("@/pages/solana-mint"));
@@ -65,6 +66,7 @@ function Router() {
         <Route path="/help" component={HelpPage} />
         <Route path="/settings" component={SettingsPage} />
         <Route path="/dashboard" component={DashboardPage} />
+        <Route path="/wallet-diagnostics" component={WalletDiagnostics} />
         
         {/* Authority Management */}
         <Route path="/manage-authorities" component={ManageAuthorities} />
