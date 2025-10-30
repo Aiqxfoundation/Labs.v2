@@ -32,7 +32,13 @@ The platform features a chain-aware architecture where each blockchain is treate
 
 ### Technical Implementations
 - **Chain Context System**: Global state management (`ChainContext`) for the selected blockchain, with persistence via `localStorage`.
-- **Wallet Management**: Separate wallet contexts for EVM chains (MetaMask integration with auto-reconnect) and Solana (multi-wallet support including Phantom, OKX, Solflare, Backpack). Automatic wallet disconnection occurs when switching between EVM and Solana chains. Global connection managed via MainLayout navbar.
+- **Comprehensive Multi-Wallet System**: 
+    - **EVM Chains**: Full multi-wallet support with EIP-6963 standard implementation for MetaMask, Trust Wallet, OKX Wallet, Bitget Wallet, Binance Web3 Wallet, and Coinbase Wallet. Uses global provider map to detect and manage concurrent wallet installations, with fallback to legacy window.ethereum detection.
+    - **Solana**: Native multi-wallet support for Phantom, OKX, Solflare, and Backpack with automatic provider discovery and selection.
+    - **Professional UI**: Official SVG wallet logos displayed in connection modal with real-time availability status and install prompts.
+    - **UX Design**: Pages are fully browsable without wallet connection; wallets only required when performing blockchain transactions. Contextual alerts appear only when wallet is needed but not connected.
+    - **Auto-reconnect**: Wallet states persist across page refreshes with automatic reconnection on app load.
+    - **Global Connection**: Unified wallet management in top navbar across all pages and chain switches, with automatic disconnection when switching between EVM and Solana ecosystems.
 - **Token Creation**:
     - **EVM Chains**: Advanced smart contract system using constructor flags to enable/disable features at deployment time. Supports Mintable, Burnable, Pausable, Capped Supply, Transfer Tax, and Blacklist features. Uses OpenZeppelin-compatible pattern where all functions exist in ABI but logic respects feature flags (`server/contracts/evmTokenTemplates.ts`).
     - **Solana**: SPL token creation with explicit Keep/Revoke authority management via radio button UI. Supports Mint Authority, Freeze Authority, and Update Authority with permanent decision warnings. Metadata support includes IPFS integration for images.
@@ -51,8 +57,8 @@ The platform features a chain-aware architecture where each blockchain is treate
 ## External Dependencies
 - **Blockchain Networks**: Ethereum, Binance Smart Chain (BSC), Polygon, Solana
 - **Wallet Integrations**:
-    - **EVM**: MetaMask (global connection in navbar)
-    - **Solana**: Phantom, OKX Wallet, Solflare, Backpack (global connection in navbar)
+    - **EVM**: MetaMask, Trust Wallet, OKX Wallet, Bitget Wallet, Binance Web3 Wallet, Coinbase Wallet (EIP-6963 compliant, global connection in navbar)
+    - **Solana**: Phantom, OKX Wallet, Solflare, Backpack (native multi-wallet support, global connection in navbar)
 - **IPFS Storage**: Pinata (for token images and metadata) - Optional with environment configuration
 - **RPC Providers**: Alchemy (enhanced RPC endpoints) - Optional with environment configuration
 - **Styling**: Tailwind CSS with custom dark mode support
@@ -98,3 +104,12 @@ PORT=5000
 6. **Global Wallet Connection**: Unified wallet management in top navbar across all pages
 7. **Solana Network Consolidation**: Removed Devnet support per user request - now supports only Testnet and Mainnet for Solana
 8. **Chain Routing Fix**: Fixed chain detection logic to properly identify Solana chains using blockchain type instead of exact chainId match
+9. **Comprehensive Multi-Wallet System (October 30, 2025)**:
+   - Implemented EIP-6963 standard for EVM wallet discovery and management
+   - Added support for 6 EVM wallets: MetaMask, Trust Wallet, OKX, Bitget, Binance Web3, Coinbase
+   - Enhanced Solana wallet support: Phantom, OKX, Solflare, Backpack
+   - Created professional wallet icon library with official SVG logos (`client/src/components/wallet-icons.tsx`)
+   - Refactored WalletRequired component to be contextual (shows content with alerts instead of blocking pages)
+   - Upgraded unified-wallet-modal with availability detection and install prompts
+   - Pages now fully browsable without wallet connection; wallet only required for blockchain actions
+   - Global provider map for concurrent multi-wallet detection in EIP-6963 environments
