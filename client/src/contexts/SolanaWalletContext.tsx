@@ -311,9 +311,7 @@ export function useSolanaWallet() {
 declare global {
   interface Window {
     solana?: SolanaProvider;
-    okxwallet?: {
-      solana?: SolanaProvider;
-    };
+    okxwallet?: any;
     solflare?: SolanaProvider;
     backpack?: SolanaProvider;
   }

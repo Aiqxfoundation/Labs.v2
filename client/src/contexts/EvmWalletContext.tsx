@@ -1,6 +1,15 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ethers } from 'ethers';
 import { getNetworkConfig, addNetwork, isChainSupported } from '@/config/networks';
+
+export type EvmWalletProvider = 'metamask' | 'trustwallet' | 'okx' | 'bitget' | 'binance' | 'coinbase';
+
+interface WalletInfo {
+  name: string;
+  provider: EvmWalletProvider;
+  isInstalled: boolean;
+  ethereum?: any;
+}
 
 interface EvmWalletContextType {
   address: string | null;
@@ -9,7 +18,9 @@ interface EvmWalletContextType {
   networkName: string | null;
   isWrongNetwork: boolean;
   targetChainId: number | null;
-  connect: () => Promise<void>;
+  selectedWallet: EvmWalletProvider | null;
+  availableWallets: WalletInfo[];
+  connect: (walletProvider?: EvmWalletProvider) => Promise<void>;
   disconnect: () => void;
   switchChain: (targetChainId: number) => Promise<void>;
   signTransaction: (tx: any) => Promise<string>;
@@ -20,36 +31,228 @@ interface EvmWalletContextType {
 
 const EvmWalletContext = createContext<EvmWalletContextType | undefined>(undefined);
 
+// Global store for EIP-6963 announced providers
+const eip6963Providers = new Map<string, any>();
+
+function detectWallets(): WalletInfo[] {
+  if (typeof window === 'undefined') return [];
+  
+  const wallets: WalletInfo[] = [];
+  const detectedProviders = new Set<string>();
+  
+  // EIP-6963: Check announced providers first
+  for (const [uuid, providerDetail] of eip6963Providers.entries()) {
+    const info = providerDetail.info;
+    const provider = providerDetail.provider;
+    
+    if (info.rdns?.includes('metamask') || info.name?.toLowerCase().includes('metamask')) {
+      if (!detectedProviders.has('metamask')) {
+        wallets.push({
+          name: 'MetaMask',
+          provider: 'metamask',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('metamask');
+      }
+    } else if (info.rdns?.includes('trust') || info.name?.toLowerCase().includes('trust')) {
+      if (!detectedProviders.has('trustwallet')) {
+        wallets.push({
+          name: 'Trust Wallet',
+          provider: 'trustwallet',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('trustwallet');
+      }
+    } else if (info.rdns?.includes('coinbase') || info.name?.toLowerCase().includes('coinbase')) {
+      if (!detectedProviders.has('coinbase')) {
+        wallets.push({
+          name: 'Coinbase Wallet',
+          provider: 'coinbase',
+          isInstalled: true,
+          ethereum: provider,
+        });
+        detectedProviders.add('coinbase');
+      }
+    }
+  }
+  
+  // Fallback: Check window.ethereum properties
+  if (window.ethereum) {
+    if (window.ethereum.isMetaMask && !window.ethereum.isBraveWallet && !detectedProviders.has('metamask')) {
+      wallets.push({
+        name: 'MetaMask',
+        provider: 'metamask',
+        isInstalled: true,
+        ethereum: window.ethereum,
+      });
+      detectedProviders.add('metamask');
+    }
+    
+    if (window.ethereum.isTrust && !detectedProviders.has('trustwallet')) {
+      wallets.push({
+        name: 'Trust Wallet',
+        provider: 'trustwallet',
+        isInstalled: true,
+        ethereum: window.ethereum,
+      });
+      detectedProviders.add('trustwallet');
+    }
+    
+    if (window.ethereum.isCoinbaseWallet && !detectedProviders.has('coinbase')) {
+      wallets.push({
+        name: 'Coinbase Wallet',
+        provider: 'coinbase',
+        isInstalled: true,
+        ethereum: window.ethereum,
+      });
+      detectedProviders.add('coinbase');
+    }
+  }
+  
+  // Check specific wallet objects
+  if ((window as any).okxwallet && !detectedProviders.has('okx')) {
+    wallets.push({
+      name: 'OKX Wallet',
+      provider: 'okx',
+      isInstalled: true,
+      ethereum: (window as any).okxwallet,
+    });
+    detectedProviders.add('okx');
+  }
+  
+  if ((window as any).bitkeep?.ethereum && !detectedProviders.has('bitget')) {
+    wallets.push({
+      name: 'Bitget Wallet',
+      provider: 'bitget',
+      isInstalled: true,
+      ethereum: (window as any).bitkeep.ethereum,
+    });
+    detectedProviders.add('bitget');
+  }
+  
+  if ((window as any).BinanceChain && !detectedProviders.has('binance')) {
+    wallets.push({
+      name: 'Binance Wallet',
+      provider: 'binance',
+      isInstalled: true,
+      ethereum: (window as any).BinanceChain,
+    });
+    detectedProviders.add('binance');
+  }
+  
+  // Final fallback: if no wallets detected but window.ethereum exists
+  if (wallets.length === 0 && window.ethereum) {
+    wallets.push({
+      name: 'MetaMask',
+      provider: 'metamask',
+      isInstalled: true,
+      ethereum: window.ethereum,
+    });
+  }
+  
+  return wallets;
+}
+
 export function EvmWalletProvider({ children }: { children: ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [targetChainId, setTargetChainId] = useState<number | null>(null);
   const [networkName, setNetworkName] = useState<string | null>(null);
-  const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState<EvmWalletProvider | null>(null);
+  const [availableWallets, setAvailableWallets] = useState<WalletInfo[]>([]);
+  const [currentProvider, setCurrentProvider] = useState<any>(null);
 
   const isWrongNetwork = targetChainId !== null && chainId !== null && targetChainId !== chainId;
+  const isMetaMaskInstalled = availableWallets.some(w => w.provider === 'metamask');
 
   useEffect(() => {
-    const checkMetaMask = () => {
-      setIsMetaMaskInstalled(typeof window !== 'undefined' && !!window.ethereum);
+    // Listen for EIP-6963 announcements
+    const handleEIP6963Announce = (event: any) => {
+      if (event.detail) {
+        const { info, provider } = event.detail;
+        // Store provider with UUID
+        const uuid = info.uuid || info.rdns || crypto.randomUUID();
+        eip6963Providers.set(uuid, { info, provider });
+        
+        // Re-detect wallets with new provider
+        const wallets = detectWallets();
+        setAvailableWallets(wallets);
+      }
+    };
+    
+    window.addEventListener('eip6963:announceProvider', handleEIP6963Announce);
+    
+    // Request wallet announcements
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+    
+    // Small delay to let wallets announce
+    setTimeout(() => {
+      const wallets = detectWallets();
+      setAvailableWallets(wallets);
+    }, 100);
+    
+    const wallets = detectWallets();
+    setAvailableWallets(wallets);
+
+    const checkConnection = async () => {
+      const savedWallet = localStorage.getItem('evmWalletProvider') as EvmWalletProvider;
+      const savedConnection = localStorage.getItem('evmWalletConnected');
+      
+      if (savedConnection === 'true' && savedWallet) {
+        const wallet = wallets.find(w => w.provider === savedWallet);
+        if (wallet?.ethereum) {
+          try {
+            const accounts = await wallet.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+              setAddress(accounts[0]);
+              setSelectedWallet(savedWallet);
+              setCurrentProvider(wallet.ethereum);
+              const chainIdHex = await wallet.ethereum.request({ method: 'eth_chainId' });
+              setChainId(parseInt(chainIdHex, 16));
+            }
+          } catch (error) {
+            console.error('Error checking wallet connection:', error);
+            localStorage.removeItem('evmWalletConnected');
+            localStorage.removeItem('evmWalletProvider');
+          }
+        }
+      }
     };
 
-    checkMetaMask();
-    window.addEventListener('ethereum#initialized', checkMetaMask);
+    checkConnection();
 
-    if (typeof window !== 'undefined' && window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        setAddress(null);
+        setSelectedWallet(null);
+        localStorage.removeItem('evmWalletConnected');
+        localStorage.removeItem('evmWalletProvider');
+      } else {
+        setAddress(accounts[0]);
+        localStorage.setItem('evmWalletConnected', 'true');
+      }
+    };
 
-      checkConnection();
-    }
+    const handleChainChanged = (newChainId: string) => {
+      setChainId(parseInt(newChainId, 16));
+    };
+
+    wallets.forEach(wallet => {
+      if (wallet.ethereum) {
+        wallet.ethereum.on?.('accountsChanged', handleAccountsChanged);
+        wallet.ethereum.on?.('chainChanged', handleChainChanged);
+      }
+    });
 
     return () => {
-      window.removeEventListener('ethereum#initialized', checkMetaMask);
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-      }
+      wallets.forEach(wallet => {
+        if (wallet.ethereum) {
+          wallet.ethereum.removeListener?.('accountsChanged', handleAccountsChanged);
+          wallet.ethereum.removeListener?.('chainChanged', handleChainChanged);
+        }
+      });
     };
   }, []);
 
@@ -62,50 +265,28 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
     }
   }, [chainId]);
 
-  const handleAccountsChanged = (accounts: string[]) => {
-    if (accounts.length === 0) {
-      setAddress(null);
-      localStorage.removeItem('evmWalletConnected');
-    } else {
-      setAddress(accounts[0]);
-      localStorage.setItem('evmWalletConnected', 'true');
+  const connect = async (walletProvider?: EvmWalletProvider) => {
+    const targetWallet = walletProvider || availableWallets[0]?.provider;
+    if (!targetWallet) {
+      throw new Error('No wallet available. Please install a Web3 wallet.');
     }
-  };
 
-  const handleChainChanged = (newChainId: string) => {
-    setChainId(parseInt(newChainId, 16));
-  };
-
-  const checkConnection = async () => {
-    if (!window.ethereum) return;
-
-    try {
-      const savedConnection = localStorage.getItem('evmWalletConnected');
-      if (savedConnection === 'true') {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
-          setChainId(parseInt(chainIdHex, 16));
-        }
-      }
-    } catch (error) {
-      console.error('Error checking wallet connection:', error);
-      localStorage.removeItem('evmWalletConnected');
-    }
-  };
-
-  const connect = async () => {
-    if (!window.ethereum) {
-      throw new Error('MetaMask not installed. Please install MetaMask to continue.');
+    const wallet = availableWallets.find(w => w.provider === targetWallet);
+    if (!wallet || !wallet.ethereum) {
+      throw new Error(`${targetWallet} wallet not found. Please install it.`);
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await wallet.ethereum.request({ method: 'eth_requestAccounts' });
       setAddress(accounts[0]);
-      const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+      setSelectedWallet(targetWallet);
+      setCurrentProvider(wallet.ethereum);
+      
+      const chainIdHex = await wallet.ethereum.request({ method: 'eth_chainId' });
       setChainId(parseInt(chainIdHex, 16));
+      
       localStorage.setItem('evmWalletConnected', 'true');
+      localStorage.setItem('evmWalletProvider', targetWallet);
     } catch (error: any) {
       if (error.code === 4001) {
         throw new Error('Connection rejected by user');
@@ -117,22 +298,24 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
   const disconnect = () => {
     setAddress(null);
     setChainId(null);
+    setSelectedWallet(null);
+    setCurrentProvider(null);
     localStorage.removeItem('evmWalletConnected');
+    localStorage.removeItem('evmWalletProvider');
   };
 
   const switchChain = async (targetChainId: number) => {
-    if (!window.ethereum) {
-      throw new Error('MetaMask not installed');
+    if (!currentProvider) {
+      throw new Error('Wallet not connected');
     }
 
     try {
-      await window.ethereum.request({
+      await currentProvider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${targetChainId.toString(16)}` }],
       });
     } catch (error: any) {
       if (error.code === 4902) {
-        // Chain not added to wallet, try to add it
         await addAndSwitchNetwork(targetChainId);
       } else if (error.code === 4001) {
         throw new Error('User rejected the request');
@@ -143,8 +326,8 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
   };
 
   const addAndSwitchNetwork = async (chainId: number) => {
-    if (!window.ethereum) {
-      throw new Error('MetaMask not installed');
+    if (!currentProvider) {
+      throw new Error('Wallet not connected');
     }
 
     if (!isChainSupported(chainId)) {
@@ -153,8 +336,7 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
     
     try {
       await addNetwork(chainId);
-      // After adding, try switching again
-      await window.ethereum.request({
+      await currentProvider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${chainId.toString(16)}` }],
       });
@@ -167,11 +349,11 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
   };
 
   const signTransaction = async (tx: any) => {
-    if (!window.ethereum || !address) {
+    if (!currentProvider || !address) {
       throw new Error('Wallet not connected');
     }
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(currentProvider);
     const signer = await provider.getSigner();
     const txResponse = await signer.sendTransaction(tx);
     await txResponse.wait();
@@ -187,6 +369,8 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
         networkName,
         isWrongNetwork,
         targetChainId,
+        selectedWallet,
+        availableWallets,
         connect,
         disconnect,
         switchChain,
@@ -207,4 +391,18 @@ export function useEvmWallet() {
     throw new Error('useEvmWallet must be used within EvmWalletProvider');
   }
   return context;
+}
+
+declare global {
+  interface Window {
+    ethereum?: any & {
+      isMetaMask?: boolean;
+      isBraveWallet?: boolean;
+      isTrust?: boolean;
+      isCoinbaseWallet?: boolean;
+    };
+    okxwallet?: any;
+    bitkeep?: any;
+    BinanceChain?: any;
+  }
 }

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,11 +7,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wallet, ExternalLink, AlertCircle } from "lucide-react";
-import { useEvmWallet } from "@/contexts/EvmWalletContext";
+import { Loader2, ExternalLink, AlertCircle } from "lucide-react";
+import { useEvmWallet, type EvmWalletProvider } from "@/contexts/EvmWalletContext";
 import { useSolanaWallet, type WalletProvider } from "@/contexts/SolanaWalletContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { WalletIcons } from "./wallet-icons";
 
 type ChainType = 'evm' | 'solana';
 
@@ -25,7 +26,7 @@ interface WalletOption {
   id: string;
   name: string;
   description: string;
-  logo: ReactNode;
+  icon: keyof typeof WalletIcons;
   installUrl?: string;
   isAvailable: boolean;
 }
@@ -42,61 +43,59 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
     {
       id: 'metamask',
       name: 'MetaMask',
-      description: 'Connect with MetaMask browser extension',
-      logo: (
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-          <Wallet className="h-5 w-5 text-white" />
-        </div>
-      ),
+      description: 'Most popular EVM wallet',
+      icon: 'MetaMask',
       installUrl: 'https://metamask.io/download/',
-      isAvailable: evmWallet.isMetaMaskInstalled,
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'metamask'),
     },
     {
-      id: 'walletconnect',
-      name: 'WalletConnect',
-      description: 'Scan QR code with your mobile wallet',
-      logo: (
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-          <Wallet className="h-5 w-5 text-white" />
-        </div>
-      ),
-      installUrl: undefined,
-      isAvailable: false,
+      id: 'trustwallet',
+      name: 'Trust Wallet',
+      description: 'Secure multi-chain wallet',
+      icon: 'TrustWallet',
+      installUrl: 'https://trustwallet.com/download',
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'trustwallet'),
+    },
+    {
+      id: 'okx',
+      name: 'OKX Wallet',
+      description: 'Multi-chain Web3 wallet',
+      icon: 'OKX',
+      installUrl: 'https://www.okx.com/web3',
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'okx'),
+    },
+    {
+      id: 'bitget',
+      name: 'Bitget Wallet',
+      description: 'Professional trading wallet',
+      icon: 'Bitget',
+      installUrl: 'https://web3.bitget.com/en/wallet-download',
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'bitget'),
+    },
+    {
+      id: 'binance',
+      name: 'Binance Wallet',
+      description: 'Binance Web3 wallet',
+      icon: 'Binance',
+      installUrl: 'https://www.binance.com/en/web3wallet',
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'binance'),
+    },
+    {
+      id: 'coinbase',
+      name: 'Coinbase Wallet',
+      description: 'Self-custody wallet from Coinbase',
+      icon: 'Coinbase',
+      installUrl: 'https://www.coinbase.com/wallet/downloads',
+      isAvailable: evmWallet.availableWallets.some(w => w.provider === 'coinbase'),
     },
   ];
-
-  const getSolanaWalletLogo = (walletId: string) => {
-    const logos: Record<string, React.ReactNode> = {
-      phantom: (
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">P</span>
-        </div>
-      ),
-      okx: (
-        <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center">
-          <span className="text-white font-bold text-xs">OKX</span>
-        </div>
-      ),
-      solflare: (
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">S</span>
-        </div>
-      ),
-      backpack: (
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">B</span>
-        </div>
-      ),
-    };
-    return logos[walletId] || <Wallet className="h-8 w-8" />;
-  };
 
   const solanaWallets: WalletOption[] = [
     {
       id: 'phantom',
       name: 'Phantom',
       description: 'Most popular Solana wallet',
-      logo: getSolanaWalletLogo('phantom'),
+      icon: 'Phantom',
       installUrl: 'https://phantom.app/download',
       isAvailable: solanaWallet.availableWallets.includes('phantom'),
     },
@@ -104,7 +103,7 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
       id: 'okx',
       name: 'OKX Wallet',
       description: 'Multi-chain wallet with great UX',
-      logo: getSolanaWalletLogo('okx'),
+      icon: 'OKX',
       installUrl: 'https://www.okx.com/web3',
       isAvailable: solanaWallet.availableWallets.includes('okx'),
     },
@@ -112,7 +111,7 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
       id: 'solflare',
       name: 'Solflare',
       description: 'Powerful Solana wallet',
-      logo: getSolanaWalletLogo('solflare'),
+      icon: 'Solflare',
       installUrl: 'https://solflare.com/download',
       isAvailable: solanaWallet.availableWallets.includes('solflare'),
     },
@@ -120,13 +119,14 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
       id: 'backpack',
       name: 'Backpack',
       description: 'Modern wallet for Solana',
-      logo: getSolanaWalletLogo('backpack'),
+      icon: 'Backpack',
       installUrl: 'https://backpack.app/downloads',
       isAvailable: solanaWallet.availableWallets.includes('backpack'),
     },
   ];
 
   const wallets = chainType === 'evm' ? evmWallets : solanaWallets;
+  const availableCount = wallets.filter(w => w.isAvailable).length;
 
   const handleConnect = async (walletId: string) => {
     setIsConnecting(true);
@@ -134,29 +134,30 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
 
     try {
       if (chainType === 'evm') {
-        if (walletId === 'metamask') {
-          if (!evmWallet.isMetaMaskInstalled) {
-            window.open('https://metamask.io/download/', '_blank');
-            throw new Error('Please install MetaMask first');
+        const wallet = evmWallets.find(w => w.id === walletId);
+        if (!wallet?.isAvailable) {
+          if (wallet?.installUrl) {
+            window.open(wallet.installUrl, '_blank');
           }
-          await evmWallet.connect();
-          toast({
-            title: "Wallet connected",
-            description: "Successfully connected to MetaMask",
-          });
-        } else if (walletId === 'walletconnect') {
-          toast({
-            title: "Coming soon",
-            description: "WalletConnect integration is coming soon",
-            variant: "default",
-          });
-          return;
+          throw new Error(`Please install ${wallet?.name || 'wallet'} first`);
         }
+        await evmWallet.connect(walletId as EvmWalletProvider);
+        toast({
+          title: "Wallet connected",
+          description: `Successfully connected to ${wallet.name}`,
+        });
       } else {
+        const wallet = solanaWallets.find(w => w.id === walletId);
+        if (!wallet?.isAvailable) {
+          if (wallet?.installUrl) {
+            window.open(wallet.installUrl, '_blank');
+          }
+          throw new Error(`Please install ${wallet?.name || 'wallet'} first`);
+        }
         await solanaWallet.connect(walletId as WalletProvider);
         toast({
           title: "Wallet connected",
-          description: `Successfully connected to ${walletId.charAt(0).toUpperCase() + walletId.slice(1)}`,
+          description: `Successfully connected to ${wallet.name}`,
         });
       }
       onClose();
@@ -177,59 +178,52 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
     window.open(installUrl, '_blank');
   };
 
+  const Icon = (props: { name: keyof typeof WalletIcons }) => {
+    const IconComponent = WalletIcons[props.name];
+    return <IconComponent />;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" data-testid="dialog-unified-wallet">
+      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800" data-testid="dialog-unified-wallet">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5 text-[#00d4ff]" />
+          <DialogTitle className="flex items-center gap-2 text-white">
+            <Icon name={chainType === 'evm' ? 'MetaMask' : 'Phantom'} />
             Connect {chainType === 'evm' ? 'EVM' : 'Solana'} Wallet
           </DialogTitle>
-          <DialogDescription>
-            Choose a wallet to connect to the {chainType === 'evm' ? 'Ethereum Virtual Machine' : 'Solana'} blockchain
+          <DialogDescription className="text-gray-400">
+            {availableCount > 0 
+              ? `${availableCount} wallet${availableCount > 1 ? 's' : ''} detected. Choose one to connect.`
+              : 'No wallets detected. Install a wallet to get started.'}
           </DialogDescription>
         </DialogHeader>
 
-        {chainType === 'evm' && !evmWallet.isMetaMaskInstalled && (
-          <Alert className="bg-orange-900/20 border-orange-500/50">
-            <AlertCircle className="h-4 w-4 text-orange-500" />
-            <AlertDescription className="text-sm text-orange-200">
-              No EVM wallet detected. Please install MetaMask or another Web3 wallet to continue.
+        {availableCount === 0 && (
+          <Alert className="bg-amber-900/20 border-amber-500/50">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="text-sm text-amber-200">
+              No {chainType === 'evm' ? 'EVM' : 'Solana'} wallet detected. Please install a wallet extension to continue.
             </AlertDescription>
           </Alert>
         )}
 
-        {chainType === 'solana' && solanaWallet.availableWallets.length === 0 && (
-          <Alert className="bg-purple-900/20 border-purple-500/50">
-            <AlertCircle className="h-4 w-4 text-purple-500" />
-            <AlertDescription className="text-sm text-purple-200">
-              No Solana wallet detected. Please install a Solana wallet to continue.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="space-y-3 mt-4">
+        <div className="space-y-2 mt-4">
           {wallets.map((wallet) => (
-            <div
-              key={wallet.id}
-              className="group relative"
-            >
+            <div key={wallet.id} className="group relative">
               {wallet.isAvailable ? (
                 <Button
                   variant="outline"
-                  className="w-full justify-start gap-4 h-auto p-4 hover:border-[#00d4ff] hover:bg-[#00d4ff]/5 transition-all"
+                  className="w-full justify-start gap-4 h-auto p-4 hover:border-[#00d4ff] hover:bg-[#00d4ff]/5 transition-all bg-gray-800 border-gray-700 text-white"
                   onClick={() => handleConnect(wallet.id)}
                   disabled={isConnecting}
                   data-testid={`button-wallet-${wallet.id}`}
                 >
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center">
-                    {wallet.logo}
+                  <div className="h-10 w-10 flex items-center justify-center">
+                    <Icon name={wallet.icon} />
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-semibold text-white">{wallet.name}</p>
-                    <p className="text-sm text-gray-400">
-                      {wallet.description}
-                    </p>
+                    <p className="text-sm text-gray-400">{wallet.description}</p>
                   </div>
                   {isConnecting && connectingWallet === wallet.id && (
                     <Loader2 className="h-5 w-5 animate-spin text-[#00d4ff]" />
@@ -239,18 +233,16 @@ export function UnifiedWalletModal({ isOpen, onClose, chainType }: UnifiedWallet
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="w-full justify-start gap-4 h-auto p-4 opacity-50 cursor-not-allowed"
+                    className="w-full justify-start gap-4 h-auto p-4 opacity-50 cursor-not-allowed bg-gray-800/50 border-gray-700"
                     disabled
                     data-testid={`button-wallet-${wallet.id}-unavailable`}
                   >
-                    <div className="h-10 w-10 rounded-lg flex items-center justify-center grayscale">
-                      {wallet.logo}
+                    <div className="h-10 w-10 flex items-center justify-center grayscale opacity-50">
+                      <Icon name={wallet.icon} />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="font-semibold text-gray-400">{wallet.name}</p>
-                      <p className="text-sm text-gray-500">
-                        Not installed
-                      </p>
+                      <p className="font-semibold text-gray-500">{wallet.name}</p>
+                      <p className="text-sm text-gray-600">Not installed</p>
                     </div>
                   </Button>
                   {wallet.installUrl && (
