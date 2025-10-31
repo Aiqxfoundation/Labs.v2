@@ -1,4 +1,4 @@
-import { SiEthereum, SiBinance, SiSolana, SiPolygon } from 'react-icons/si';
+import { SiEthereum, SiBinance, SiSolana } from 'react-icons/si';
 import { IconType } from 'react-icons';
 import { ChainId as SharedChainId, SUPPORTED_CHAINS as SHARED_SUPPORTED_CHAINS, BlockchainType } from '@shared/schema';
 
@@ -94,11 +94,19 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       },
       {
         id: 'pause-token',
-        name: 'Pause/Freeze Token',
+        name: 'Pause Token',
         description: 'Pause/unpause token transfers',
         icon: 'Pause',
         available: true,
         route: '/chain/ethereum-mainnet/pause',
+      },
+      {
+        id: 'blacklist',
+        name: 'Blacklist Addresses',
+        description: 'Block/unblock specific addresses',
+        icon: 'Ban',
+        available: true,
+        route: '/chain/ethereum-mainnet/blacklist',
       },
       {
         id: 'revoke-authority',
@@ -124,7 +132,7 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       taxableToken: true,
       multisender: true,
       authorityManagement: true,
-      freezeAccounts: false,
+      freezeAccounts: true,
       metadata: false,
     },
   },
@@ -179,11 +187,19 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       },
       {
         id: 'pause-token',
-        name: 'Pause/Freeze Token',
+        name: 'Pause Token',
         description: 'Pause/unpause token transfers',
         icon: 'Pause',
         available: true,
         route: '/chain/ethereum-testnet/pause',
+      },
+      {
+        id: 'blacklist',
+        name: 'Blacklist Addresses',
+        description: 'Block/unblock specific addresses',
+        icon: 'Ban',
+        available: true,
+        route: '/chain/ethereum-testnet/blacklist',
       },
       {
         id: 'revoke-authority',
@@ -209,7 +225,7 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       taxableToken: true,
       multisender: true,
       authorityManagement: true,
-      freezeAccounts: false,
+      freezeAccounts: true,
       metadata: false,
     },
   },
@@ -264,11 +280,19 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       },
       {
         id: 'pause-token',
-        name: 'Pause/Freeze Token',
+        name: 'Pause Token',
         description: 'Pause/unpause token transfers',
         icon: 'Pause',
         available: true,
         route: '/chain/bsc-mainnet/pause',
+      },
+      {
+        id: 'blacklist',
+        name: 'Blacklist Addresses',
+        description: 'Block/unblock specific addresses',
+        icon: 'Ban',
+        available: true,
+        route: '/chain/bsc-mainnet/blacklist',
       },
       {
         id: 'revoke-authority',
@@ -294,7 +318,7 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       taxableToken: true,
       multisender: true,
       authorityManagement: true,
-      freezeAccounts: false,
+      freezeAccounts: true,
       metadata: false,
     },
   },
@@ -349,11 +373,19 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       },
       {
         id: 'pause-token',
-        name: 'Pause/Freeze Token',
+        name: 'Pause Token',
         description: 'Pause/unpause token transfers',
         icon: 'Pause',
         available: true,
         route: '/chain/bsc-testnet/pause',
+      },
+      {
+        id: 'blacklist',
+        name: 'Blacklist Addresses',
+        description: 'Block/unblock specific addresses',
+        icon: 'Ban',
+        available: true,
+        route: '/chain/bsc-testnet/blacklist',
       },
       {
         id: 'revoke-authority',
@@ -379,7 +411,7 @@ export const CHAIN_DEFINITIONS: Record<SharedChainId, ChainConfig> = {
       taxableToken: true,
       multisender: true,
       authorityManagement: true,
-      freezeAccounts: false,
+      freezeAccounts: true,
       metadata: false,
     },
   },

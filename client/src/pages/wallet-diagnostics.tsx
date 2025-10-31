@@ -149,7 +149,7 @@ export default function WalletDiagnostics() {
 
       <Card>
         <CardHeader>
-          <CardTitle>EVM Wallets (Ethereum/BSC/Polygon)</CardTitle>
+          <CardTitle>EVM Wallets (Ethereum/BSC)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {Object.keys(diagnostics.evmWallets || {}).length === 0 ? (

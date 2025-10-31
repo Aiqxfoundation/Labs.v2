@@ -36,6 +36,7 @@ const SolanaMultisender = lazy(() => import("@/pages/solana-multisender"));
 const EvmMint = lazy(() => import("@/pages/evm-mint"));
 const EvmBurn = lazy(() => import("@/pages/evm-burn"));
 const EvmPause = lazy(() => import("@/pages/evm-pause"));
+const EvmBlacklist = lazy(() => import("@/pages/evm-blacklist"));
 const EvmRevokeAuthority = lazy(() => import("@/pages/evm-revoke-authority"));
 const EvmMultisender = lazy(() => import("@/pages/evm-multisender"));
 
@@ -83,6 +84,7 @@ function Router() {
         
         {/* EVM-only Tool Pages */}
         <Route path="/chain/:chainId/pause" component={EvmPause} />
+        <Route path="/chain/:chainId/blacklist" component={EvmBlacklist} />
         <Route path="/chain/:chainId/revoke" component={EvmRevokeAuthority} />
         
         {/* Solana-only Tool Pages */}

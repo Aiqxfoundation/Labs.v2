@@ -204,7 +204,7 @@ export default function SettingsPage() {
                       Alchemy API Configuration
                     </CardTitle>
                     <CardDescription>
-                      Enhanced RPC endpoints for Ethereum, Polygon, and other EVM chains
+                      Enhanced RPC endpoints for Ethereum, BSC, and other EVM chains
                     </CardDescription>
                   </div>
                   {isAlchemyConfigured ? (
@@ -295,16 +295,6 @@ export default function SettingsPage() {
                     value={config.bscRpcUrl}
                     onChange={(e) => setConfig({ ...config, bscRpcUrl: e.target.value })}
                     placeholder="https://bsc-dataseed.binance.org/"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="polygon-rpc">Polygon RPC URL</Label>
-                  <Input
-                    id="polygon-rpc"
-                    value={config.polygonRpcUrl}
-                    onChange={(e) => setConfig({ ...config, polygonRpcUrl: e.target.value })}
-                    placeholder="https://polygon-mainnet.g.alchemy.com/v2/YOUR_KEY"
                   />
                 </div>
 

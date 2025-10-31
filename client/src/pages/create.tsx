@@ -183,7 +183,7 @@ export default function Create() {
           Create EVM Token
         </h1>
         <p className="text-gray-400">
-          Deploy your custom ERC20 token on Ethereum, BSC, Polygon, Arbitrum, or Base
+          Deploy your custom ERC20 token on Ethereum and BSC (BEP-20)
         </p>
       </div>
 
