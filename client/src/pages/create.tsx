@@ -187,33 +187,10 @@ export default function Create() {
         </p>
       </div>
 
-      {!isConnected && (
-        <Card className="mb-6 border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-8 w-8 text-cyan-500" />
-                <div>
-                  <p className="font-semibold text-white">Connect Your Wallet</p>
-                  <p className="text-sm text-gray-400">Connect MetaMask to deploy tokens</p>
-                </div>
-              </div>
-              <Button
-                onClick={handleConnectWallet}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white"
-                data-testid="button-connect-evm-wallet"
-              >
-                <Wallet className="h-4 w-4 mr-2" />
-                Connect MetaMask
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <EvmTokenForm
         onSubmit={handleSubmit}
         isLoading={deployMutation.isPending}
+        isConnected={isConnected}
       />
     </div>
   );

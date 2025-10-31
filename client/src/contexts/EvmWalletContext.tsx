@@ -231,11 +231,27 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
     // Request wallet announcements
     window.dispatchEvent(new Event('eip6963:requestProvider'));
     
-    // Small delay to let wallets announce
-    setTimeout(() => {
+    let retryCount = 0;
+    const maxRetries = 10;
+    
+    const detectWalletsWithRetry = () => {
       const wallets = detectWallets();
       setAvailableWallets(wallets);
-    }, 100);
+      
+      if (wallets.length === 0 && retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(detectWalletsWithRetry, 300);
+      }
+    };
+    
+    setTimeout(detectWalletsWithRetry, 100);
+    
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const wallets = detectWallets();
+        setAvailableWallets(wallets);
+      }, 500);
+    });
     
     const wallets = detectWallets();
     setAvailableWallets(wallets);

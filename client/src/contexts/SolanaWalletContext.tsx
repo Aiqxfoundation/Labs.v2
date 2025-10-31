@@ -100,7 +100,27 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
   const [availableWallets, setAvailableWallets] = useState<WalletProvider[]>([]);
 
   useEffect(() => {
-    setAvailableWallets(getAvailableWallets());
+    let retryCount = 0;
+    const maxRetries = 10;
+    
+    const detectWalletsWithRetry = () => {
+      const wallets = getAvailableWallets();
+      setAvailableWallets(wallets);
+      
+      if (wallets.length === 0 && retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(detectWalletsWithRetry, 300);
+      }
+    };
+    
+    detectWalletsWithRetry();
+    
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const wallets = getAvailableWallets();
+        setAvailableWallets(wallets);
+      }, 500);
+    });
     
     // Auto-connect to previously connected wallet
     const checkAutoConnect = async () => {
@@ -132,7 +152,7 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
       }
     };
     
-    checkAutoConnect();
+    setTimeout(checkAutoConnect, 500);
   }, []);
 
   const connect = async (provider?: WalletProvider) => {

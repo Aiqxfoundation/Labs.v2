@@ -27,12 +27,14 @@ import {
   Check,
   Ban,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Wallet
 } from "lucide-react";
 
 interface EvmTokenCreationFormProps {
   onSubmit: (data: EvmTokenCreationForm) => void;
   isLoading?: boolean;
+  isConnected?: boolean;
   defaultChainId?: ChainId;
   allowedChainIds?: ChainId[];
 }
@@ -48,6 +50,7 @@ const featureIcons = {
 export function EvmTokenCreationForm({ 
   onSubmit, 
   isLoading,
+  isConnected = true,
   defaultChainId = "ethereum-mainnet",
   allowedChainIds 
 }: EvmTokenCreationFormProps) {
@@ -689,8 +692,8 @@ export function EvmTokenCreationForm({
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={isLoading}
-          className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+          disabled={isLoading || !isConnected}
+          className="w-full bg-cyan-500 hover:bg-cyan-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           size="lg"
           data-testid="button-create-token"
         >
@@ -698,6 +701,11 @@ export function EvmTokenCreationForm({
             <>
               <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               Creating Token...
+            </>
+          ) : !isConnected ? (
+            <>
+              <Wallet className="mr-2 h-5 w-5" />
+              Connect Wallet to Create Token
             </>
           ) : (
             <>
