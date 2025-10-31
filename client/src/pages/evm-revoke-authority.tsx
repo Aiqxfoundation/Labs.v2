@@ -97,154 +97,194 @@ export default function EvmRevokeAuthority() {
           </p>
         </div>
 
-        {!isConnected ? (
-          <Card className="border-gray-800">
+        {!isCorrectNetwork && isConnected && (
+          <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-8 w-8 text-cyan-500" />
-                <div>
-                  <p className="font-semibold text-white">Connect Your Wallet</p>
-                  <p className="text-sm text-gray-400">Use the "Connect Wallet" button to revoke authorities</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-500">Wrong network detected</p>
+                <Button
+                  onClick={() => switchChain(currentChain?.chainId || 1)}
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-switch-network"
+                >
+                  Switch to {currentChain?.name}
+                </Button>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <>
-            {!isCorrectNetwork && (
-              <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-yellow-500">Wrong network detected</p>
-                    <Button
-                      onClick={() => switchChain(currentChain?.chainId || 1)}
-                      variant="outline"
-                      size="sm"
-                      data-testid="button-switch-network"
-                    >
-                      Switch to {currentChain?.name}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            <Alert className="mb-6 border-red-500/20 bg-red-500/5">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-              <AlertDescription className="text-sm text-gray-300">
-                <strong>Warning:</strong> Revoking authorities is permanent and cannot be undone. Make sure you understand the implications before proceeding.
-              </AlertDescription>
-            </Alert>
-
-            <Card className="border-gray-800 mb-6">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-red-500" />
-                  Token Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
-                  <Input
-                    id="token-address"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-token-address"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Revoke Mint Authority</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Remove ability to mint new tokens
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={() => handleRevokeAuthority('mint')}
-                    disabled={loading || !tokenAddress}
-                    variant="destructive"
-                    className="w-full"
-                    data-testid="button-revoke-mint"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Revoke Mint
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Revoke Pause Authority</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Remove ability to pause transfers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={() => handleRevokeAuthority('pause')}
-                    disabled={loading || !tokenAddress}
-                    variant="destructive"
-                    className="w-full"
-                    data-testid="button-revoke-pause"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Revoke Pause
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Revoke Blacklist Authority</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Remove ability to blacklist addresses
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={() => handleRevokeAuthority('blacklist')}
-                    disabled={loading || !tokenAddress}
-                    variant="destructive"
-                    className="w-full"
-                    data-testid="button-revoke-blacklist"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Revoke Blacklist
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-red-800 bg-red-500/5">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Renounce Ownership</CardTitle>
-                  <CardDescription className="text-red-400">
-                    Permanently give up contract control
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={() => handleRevokeAuthority('ownership')}
-                    disabled={loading || !tokenAddress}
-                    variant="destructive"
-                    className="w-full bg-red-700 hover:bg-red-800"
-                    data-testid="button-renounce-ownership"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Renounce Ownership
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </>
         )}
+
+        <Alert className="mb-6 border-red-500/20 bg-red-500/5">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-sm text-gray-300">
+            <strong>Warning:</strong> Revoking authorities is permanent and cannot be undone. Make sure you understand the implications before proceeding.
+          </AlertDescription>
+        </Alert>
+
+        <Card className="border-gray-800 mb-6">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Shield className="h-5 w-5 text-red-500" />
+              Token Address
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
+              <Input
+                id="token-address"
+                value={tokenAddress}
+                onChange={(e) => setTokenAddress(e.target.value)}
+                placeholder="0x..."
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-token-address"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Revoke Mint Authority</CardTitle>
+              <CardDescription className="text-gray-400">
+                Remove ability to mint new tokens
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => handleRevokeAuthority('mint')}
+                disabled={loading || !isConnected || !tokenAddress}
+                variant="destructive"
+                className="w-full disabled:opacity-50"
+                data-testid="button-revoke-mint"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Revoking...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Revoke
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Revoke Mint
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Revoke Pause Authority</CardTitle>
+              <CardDescription className="text-gray-400">
+                Remove ability to pause transfers
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => handleRevokeAuthority('pause')}
+                disabled={loading || !isConnected || !tokenAddress}
+                variant="destructive"
+                className="w-full disabled:opacity-50"
+                data-testid="button-revoke-pause"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Revoking...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Revoke
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Revoke Pause
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Revoke Blacklist Authority</CardTitle>
+              <CardDescription className="text-gray-400">
+                Remove ability to blacklist addresses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => handleRevokeAuthority('blacklist')}
+                disabled={loading || !isConnected || !tokenAddress}
+                variant="destructive"
+                className="w-full disabled:opacity-50"
+                data-testid="button-revoke-blacklist"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Revoking...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Revoke
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Revoke Blacklist
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-800 bg-red-500/5">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Renounce Ownership</CardTitle>
+              <CardDescription className="text-red-400">
+                Permanently give up contract control
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => handleRevokeAuthority('ownership')}
+                disabled={loading || !isConnected || !tokenAddress}
+                variant="destructive"
+                className="w-full bg-red-700 hover:bg-red-800 disabled:opacity-50"
+                data-testid="button-renounce-ownership"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Renouncing...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Renounce
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Renounce Ownership
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </MainLayout>
   );

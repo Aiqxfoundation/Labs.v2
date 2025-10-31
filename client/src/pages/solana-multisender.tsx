@@ -93,90 +93,90 @@ export default function SolanaMultisender() {
         </p>
       </div>
 
-      {!isConnected ? (
+      <div className="space-y-6">
+        <Alert className="border-blue-800 bg-blue-900/10">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertDescription className="text-blue-200">
+            Enter one recipient per line in the format: address,amount
+            <br />
+            Example: 7xKXt...abc123,100
+          </AlertDescription>
+        </Alert>
+
         <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to send tokens</p>
-              </div>
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Send className="h-5 w-5 text-cyan-500" />
+              Send to Multiple Recipients
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Batch send tokens to save on transaction fees
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
+              <Input
+                id="mint-address"
+                value={mintAddress}
+                onChange={(e) => setMintAddress(e.target.value)}
+                placeholder="Enter token mint address"
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-mint-address"
+              />
             </div>
+
+            <div>
+              <Label htmlFor="decimals" className="text-white">Token Decimals</Label>
+              <Input
+                id="decimals"
+                type="number"
+                value={decimals}
+                onChange={(e) => setDecimals(e.target.value)}
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-decimals"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="recipients" className="text-white">Recipients (address,amount per line)</Label>
+              <Textarea
+                id="recipients"
+                value={recipients}
+                onChange={(e) => setRecipients(e.target.value)}
+                placeholder="7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU,100&#10;8yHbTN3ZqL98e32MxFJKLpQs4jKheTqB94UASvKtbCsV,250"
+                rows={8}
+                className="bg-gray-900 border-gray-700 text-white font-mono text-sm"
+                data-testid="input-recipients"
+              />
+            </div>
+
+            <Button
+              onClick={handleMultisend}
+              disabled={loading || !isConnected || !mintAddress || !recipients}
+              className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
+              data-testid="button-multisend"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending to Recipients...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Send
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Send to All Recipients
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
-      ) : (
-        <div className="space-y-6">
-          <Alert className="border-blue-800 bg-blue-900/10">
-            <Info className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-blue-200">
-              Enter one recipient per line in the format: address,amount
-              <br />
-              Example: 7xKXt...abc123,100
-            </AlertDescription>
-          </Alert>
-
-          <Card className="border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Send className="h-5 w-5 text-cyan-500" />
-                Send to Multiple Recipients
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Batch send tokens to save on transaction fees
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
-                <Input
-                  id="mint-address"
-                  value={mintAddress}
-                  onChange={(e) => setMintAddress(e.target.value)}
-                  placeholder="Enter token mint address"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-mint-address"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="decimals" className="text-white">Token Decimals</Label>
-                <Input
-                  id="decimals"
-                  type="number"
-                  value={decimals}
-                  onChange={(e) => setDecimals(e.target.value)}
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-decimals"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="recipients" className="text-white">Recipients (address,amount per line)</Label>
-                <Textarea
-                  id="recipients"
-                  value={recipients}
-                  onChange={(e) => setRecipients(e.target.value)}
-                  placeholder="7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU,100&#10;8yHbTN3ZqL98e32MxFJKLpQs4jKheTqB94UASvKtbCsV,250"
-                  rows={8}
-                  className="bg-gray-900 border-gray-700 text-white font-mono text-sm"
-                  data-testid="input-recipients"
-                />
-              </div>
-
-              <Button
-                onClick={handleMultisend}
-                disabled={loading || !mintAddress || !recipients}
-                className="w-full bg-cyan-600 hover:bg-cyan-700"
-                data-testid="button-multisend"
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Send to All Recipients
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      </div>
     </div>
     </MainLayout>
   );

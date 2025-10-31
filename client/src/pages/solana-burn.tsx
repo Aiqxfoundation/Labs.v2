@@ -81,80 +81,80 @@ export default function SolanaBurnTokens() {
         </p>
       </div>
 
-      {!isConnected ? (
-        <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to burn tokens</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Flame className="h-5 w-5 text-orange-500" />
-              Burn Tokens
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              Permanently destroy tokens from your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Card className="border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Flame className="h-5 w-5 text-orange-500" />
+            Burn Tokens
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Permanently destroy tokens from your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
+            <Input
+              id="mint-address"
+              value={mintAddress}
+              onChange={(e) => setMintAddress(e.target.value)}
+              placeholder="Enter token mint address"
+              className="bg-gray-900 border-gray-700 text-white"
+              data-testid="input-mint-address"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
+              <Label htmlFor="amount" className="text-white">Amount to Burn</Label>
               <Input
-                id="mint-address"
-                value={mintAddress}
-                onChange={(e) => setMintAddress(e.target.value)}
-                placeholder="Enter token mint address"
+                id="amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.0"
                 className="bg-gray-900 border-gray-700 text-white"
-                data-testid="input-mint-address"
+                data-testid="input-amount"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="amount" className="text-white">Amount to Burn</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.0"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-amount"
-                />
-              </div>
-              <div>
-                <Label htmlFor="decimals" className="text-white">Decimals</Label>
-                <Input
-                  id="decimals"
-                  type="number"
-                  value={decimals}
-                  onChange={(e) => setDecimals(e.target.value)}
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-decimals"
-                />
-              </div>
+            <div>
+              <Label htmlFor="decimals" className="text-white">Decimals</Label>
+              <Input
+                id="decimals"
+                type="number"
+                value={decimals}
+                onChange={(e) => setDecimals(e.target.value)}
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-decimals"
+              />
             </div>
+          </div>
 
-            <Button
-              onClick={handleBurn}
-              disabled={loading || !mintAddress || !amount}
-              className="w-full bg-orange-600 hover:bg-orange-700"
-              data-testid="button-burn"
-            >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Burn Tokens
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          <Button
+            onClick={handleBurn}
+            disabled={loading || !isConnected || !mintAddress || !amount}
+            className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+            data-testid="button-burn"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Burning Tokens...
+              </>
+            ) : !isConnected ? (
+              <>
+                <Wallet className="mr-2 h-4 w-4" />
+                Connect Wallet to Burn
+              </>
+            ) : (
+              <>
+                <Flame className="mr-2 h-4 w-4" />
+                Burn Tokens
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
     </MainLayout>
   );

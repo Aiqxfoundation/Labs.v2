@@ -84,20 +84,7 @@ export default function SolanaMintTokens() {
         </p>
       </div>
 
-      {!isConnected ? (
-        <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to mint tokens</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-gray-800">
+      <Card className="border-gray-800">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Plus className="h-5 w-5 text-cyan-500" />
@@ -160,16 +147,29 @@ export default function SolanaMintTokens() {
 
             <Button
               onClick={handleMint}
-              disabled={loading || !mintAddress || !destination || !amount}
-              className="w-full bg-cyan-600 hover:bg-cyan-700"
+              disabled={loading || !mintAddress || !destination || !amount || !isConnected}
+              className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
               data-testid="button-mint"
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Mint Tokens
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Minting Tokens...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Mint
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Mint Tokens
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
-      )}
       </div>
     </MainLayout>
   );

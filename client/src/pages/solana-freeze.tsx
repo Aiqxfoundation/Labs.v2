@@ -81,111 +81,125 @@ export default function SolanaFreezeAccount() {
         </p>
       </div>
 
-      {!isConnected ? (
-        <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
+      <Card className="border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Snowflake className="h-5 w-5 text-blue-500" />
+            Freeze/Unfreeze Account
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Control token account freeze status
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="freeze" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="freeze">Freeze</TabsTrigger>
+              <TabsTrigger value="unfreeze">Unfreeze</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="freeze" className="space-y-4">
               <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to manage freeze status</p>
+                <Label htmlFor="freeze-mint" className="text-white">Token Mint Address</Label>
+                <Input
+                  id="freeze-mint"
+                  value={mintAddress}
+                  onChange={(e) => setMintAddress(e.target.value)}
+                  placeholder="Enter token mint address"
+                  className="bg-gray-900 border-gray-700 text-white"
+                  data-testid="input-freeze-mint"
+                />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Snowflake className="h-5 w-5 text-blue-500" />
-              Freeze/Unfreeze Account
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              Control token account freeze status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="freeze" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="freeze">Freeze</TabsTrigger>
-                <TabsTrigger value="unfreeze">Unfreeze</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="freeze" className="space-y-4">
-                <div>
-                  <Label htmlFor="freeze-mint" className="text-white">Token Mint Address</Label>
-                  <Input
-                    id="freeze-mint"
-                    value={mintAddress}
-                    onChange={(e) => setMintAddress(e.target.value)}
-                    placeholder="Enter token mint address"
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-freeze-mint"
-                  />
-                </div>
 
-                <div>
-                  <Label htmlFor="freeze-account" className="text-white">Account to Freeze</Label>
-                  <Input
-                    id="freeze-account"
-                    value={accountAddress}
-                    onChange={(e) => setAccountAddress(e.target.value)}
-                    placeholder="Enter account address"
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-freeze-account"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="freeze-account" className="text-white">Account to Freeze</Label>
+                <Input
+                  id="freeze-account"
+                  value={accountAddress}
+                  onChange={(e) => setAccountAddress(e.target.value)}
+                  placeholder="Enter account address"
+                  className="bg-gray-900 border-gray-700 text-white"
+                  data-testid="input-freeze-account"
+                />
+              </div>
 
-                <Button
-                  onClick={() => handleFreeze('freeze')}
-                  disabled={loading || !mintAddress || !accountAddress}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  data-testid="button-freeze"
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Freeze Account
-                </Button>
-              </TabsContent>
+              <Button
+                onClick={() => handleFreeze('freeze')}
+                disabled={loading || !isConnected || !mintAddress || !accountAddress}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                data-testid="button-freeze"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Freezing Account...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Freeze
+                  </>
+                ) : (
+                  <>
+                    <Snowflake className="mr-2 h-4 w-4" />
+                    Freeze Account
+                  </>
+                )}
+              </Button>
+            </TabsContent>
 
-              <TabsContent value="unfreeze" className="space-y-4">
-                <div>
-                  <Label htmlFor="unfreeze-mint" className="text-white">Token Mint Address</Label>
-                  <Input
-                    id="unfreeze-mint"
-                    value={mintAddress}
-                    onChange={(e) => setMintAddress(e.target.value)}
-                    placeholder="Enter token mint address"
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-unfreeze-mint"
-                  />
-                </div>
+            <TabsContent value="unfreeze" className="space-y-4">
+              <div>
+                <Label htmlFor="unfreeze-mint" className="text-white">Token Mint Address</Label>
+                <Input
+                  id="unfreeze-mint"
+                  value={mintAddress}
+                  onChange={(e) => setMintAddress(e.target.value)}
+                  placeholder="Enter token mint address"
+                  className="bg-gray-900 border-gray-700 text-white"
+                  data-testid="input-unfreeze-mint"
+                />
+              </div>
 
-                <div>
-                  <Label htmlFor="unfreeze-account" className="text-white">Account to Unfreeze</Label>
-                  <Input
-                    id="unfreeze-account"
-                    value={accountAddress}
-                    onChange={(e) => setAccountAddress(e.target.value)}
-                    placeholder="Enter account address"
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-unfreeze-account"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="unfreeze-account" className="text-white">Account to Unfreeze</Label>
+                <Input
+                  id="unfreeze-account"
+                  value={accountAddress}
+                  onChange={(e) => setAccountAddress(e.target.value)}
+                  placeholder="Enter account address"
+                  className="bg-gray-900 border-gray-700 text-white"
+                  data-testid="input-unfreeze-account"
+                />
+              </div>
 
-                <Button
-                  onClick={() => handleFreeze('unfreeze')}
-                  disabled={loading || !mintAddress || !accountAddress}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  data-testid="button-unfreeze"
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Unfreeze Account
-                </Button>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+              <Button
+                onClick={() => handleFreeze('unfreeze')}
+                disabled={loading || !isConnected || !mintAddress || !accountAddress}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                data-testid="button-unfreeze"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Unfreezing Account...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Unfreeze
+                  </>
+                ) : (
+                  <>
+                    <Snowflake className="mr-2 h-4 w-4" />
+                    Unfreeze Account
+                  </>
+                )}
+              </Button>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
     </MainLayout>
   );

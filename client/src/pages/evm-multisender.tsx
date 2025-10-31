@@ -212,37 +212,23 @@ export default function EvmMultisender() {
           </p>
         </div>
 
-        {!isConnected ? (
-          <Card className="border-gray-800">
+        {!isCorrectNetwork && isConnected && (
+          <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-8 w-8 text-cyan-500" />
-                <div>
-                  <p className="font-semibold text-white">Connect Your Wallet</p>
-                  <p className="text-sm text-gray-400">Use the "Connect Wallet" button to send tokens</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-500">Wrong network detected</p>
+                <Button
+                  onClick={() => switchChain(currentChain?.chainId || 1)}
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-switch-network"
+                >
+                  Switch to {currentChain?.name}
+                </Button>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <>
-            {!isCorrectNetwork && (
-              <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-yellow-500">Wrong network detected</p>
-                    <Button
-                      onClick={() => switchChain(currentChain?.chainId || 1)}
-                      variant="outline"
-                      size="sm"
-                      data-testid="button-switch-network"
-                    >
-                      Switch to {currentChain?.name}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+        )}
 
             <Card className="border-gray-800 mb-6">
               <CardHeader>
@@ -367,18 +353,29 @@ export default function EvmMultisender() {
                 </div>
                 <Button
                   onClick={executeMultisend}
-                  disabled={isProcessing || recipients.length === 0}
-                  className="w-full bg-cyan-600 hover:bg-cyan-700"
+                  disabled={isProcessing || !isConnected || recipients.length === 0}
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
                   data-testid="button-execute-multisend"
                 >
-                  {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  <Send className="mr-2 h-4 w-4" />
-                  Send to {recipients.length} Recipients
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Connect Wallet to Send
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send to {recipients.length} Recipients
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
-          </>
-        )}
       </div>
     </MainLayout>
   );

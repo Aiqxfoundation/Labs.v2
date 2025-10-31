@@ -468,9 +468,23 @@ export default function ToolsSolana() {
                   data-testid="textarea-multisend-recipients"
                 />
               </div>
-              <Button onClick={handleMultisend} disabled={loading || !isConnected} className="w-full" data-testid="button-send-tokens">
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Send Tokens
+              <Button onClick={handleMultisend} disabled={loading || !isConnected} className="w-full disabled:opacity-50" data-testid="button-send-tokens">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending Tokens...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet to Send
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Tokens
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -528,9 +542,23 @@ export default function ToolsSolana() {
                     data-testid="input-mint-decimals"
                   />
                 </div>
-                <Button onClick={handleMintTokens} disabled={loading || !isConnected} className="w-full" data-testid="button-mint-tokens">
-                  {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-                  Mint Tokens
+                <Button onClick={handleMintTokens} disabled={loading || !isConnected} className="w-full disabled:opacity-50" data-testid="button-mint-tokens">
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Minting Tokens...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Mint
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Mint Tokens
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -581,9 +609,23 @@ export default function ToolsSolana() {
                     This action is permanent and cannot be undone
                   </AlertDescription>
                 </Alert>
-                <Button onClick={handleBurnTokens} disabled={loading || !isConnected} variant="destructive" className="w-full" data-testid="button-burn-tokens">
-                  {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Flame className="h-4 w-4 mr-2" />}
-                  Burn Tokens
+                <Button onClick={handleBurnTokens} disabled={loading || !isConnected} variant="destructive" className="w-full disabled:opacity-50" data-testid="button-burn-tokens">
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Burning Tokens...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Burn
+                    </>
+                  ) : (
+                    <>
+                      <Flame className="h-4 w-4 mr-2" />
+                      Burn Tokens
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -630,9 +672,23 @@ export default function ToolsSolana() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleFreezeUnfreeze} disabled={loading || !isConnected} className="w-full" data-testid="button-freeze-unfreeze">
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Snowflake className="h-4 w-4 mr-2" />}
-                {freezeAction === 'freeze' ? 'Freeze Account' : 'Unfreeze Account'}
+              <Button onClick={handleFreezeUnfreeze} disabled={loading || !isConnected} className="w-full disabled:opacity-50" data-testid="button-freeze-unfreeze">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {freezeAction === 'freeze' ? 'Freezing Account...' : 'Unfreezing Account...'}
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet to {freezeAction === 'freeze' ? 'Freeze' : 'Unfreeze'}
+                  </>
+                ) : (
+                  <>
+                    <Snowflake className="h-4 w-4 mr-2" />
+                    {freezeAction === 'freeze' ? 'Freeze Account' : 'Unfreeze Account'}
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -683,9 +739,23 @@ export default function ToolsSolana() {
                     data-testid="input-transfer-new-authority"
                   />
                 </div>
-                <Button onClick={handleTransferAuthority} disabled={loading || !isConnected} className="w-full" data-testid="button-transfer-authority">
-                  {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                  Transfer Authority
+                <Button onClick={handleTransferAuthority} disabled={loading || !isConnected} className="w-full disabled:opacity-50" data-testid="button-transfer-authority">
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Transferring Authority...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Transfer Authority
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Transfer Authority
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -729,9 +799,23 @@ export default function ToolsSolana() {
                     Warning: This action is permanent and cannot be undone
                   </AlertDescription>
                 </Alert>
-                <Button onClick={handleRevokeAuthority} disabled={loading || !isConnected} variant="destructive" className="w-full" data-testid="button-revoke-authority">
-                  {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserX className="h-4 w-4 mr-2" />}
-                  Revoke Authority
+                <Button onClick={handleRevokeAuthority} disabled={loading || !isConnected} variant="destructive" className="w-full disabled:opacity-50" data-testid="button-revoke-authority">
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Revoking Authority...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Revoke Authority
+                    </>
+                  ) : (
+                    <>
+                      <UserX className="h-4 w-4 mr-2" />
+                      Revoke Authority
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -784,9 +868,23 @@ export default function ToolsSolana() {
                   data-testid="input-metadata-uri"
                 />
               </div>
-              <Button onClick={handleUpdateMetadata} disabled={loading || !isConnected} className="w-full" data-testid="button-update-metadata">
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Image className="h-4 w-4 mr-2" />}
-                Update Metadata
+              <Button onClick={handleUpdateMetadata} disabled={loading || !isConnected} className="w-full disabled:opacity-50" data-testid="button-update-metadata">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating Metadata...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet to Update Metadata
+                  </>
+                ) : (
+                  <>
+                    <Image className="h-4 w-4 mr-2" />
+                    Update Metadata
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>

@@ -49,103 +49,103 @@ export default function SolanaUpdateMetadata() {
         </p>
       </div>
 
-      {!isConnected ? (
-        <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to update metadata</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Image className="h-5 w-5 text-purple-500" />
-              Update Token Metadata
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              Update your token's metadata information
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Card className="border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Image className="h-5 w-5 text-purple-500" />
+            Update Token Metadata
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Update your token's metadata information
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
+            <Input
+              id="mint-address"
+              value={mintAddress}
+              onChange={(e) => setMintAddress(e.target.value)}
+              placeholder="Enter token mint address"
+              className="bg-gray-900 border-gray-700 text-white"
+              data-testid="input-mint-address"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="mint-address" className="text-white">Token Mint Address</Label>
+              <Label htmlFor="name" className="text-white">Token Name</Label>
               <Input
-                id="mint-address"
-                value={mintAddress}
-                onChange={(e) => setMintAddress(e.target.value)}
-                placeholder="Enter token mint address"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="My Token"
                 className="bg-gray-900 border-gray-700 text-white"
-                data-testid="input-mint-address"
+                data-testid="input-name"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name" className="text-white">Token Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="My Token"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="symbol" className="text-white">Symbol</Label>
-                <Input
-                  id="symbol"
-                  value={symbol}
-                  onChange={(e) => setSymbol(e.target.value)}
-                  placeholder="MTK"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-symbol"
-                />
-              </div>
-            </div>
-
             <div>
-              <Label htmlFor="uri" className="text-white">Metadata URI (JSON)</Label>
+              <Label htmlFor="symbol" className="text-white">Symbol</Label>
               <Input
-                id="uri"
-                value={uri}
-                onChange={(e) => setUri(e.target.value)}
-                placeholder="https://example.com/metadata.json"
+                id="symbol"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
+                placeholder="MTK"
                 className="bg-gray-900 border-gray-700 text-white"
-                data-testid="input-uri"
+                data-testid="input-symbol"
               />
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="description" className="text-white">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Token description..."
-                className="bg-gray-900 border-gray-700 text-white"
-                data-testid="input-description"
-              />
-            </div>
+          <div>
+            <Label htmlFor="uri" className="text-white">Metadata URI (JSON)</Label>
+            <Input
+              id="uri"
+              value={uri}
+              onChange={(e) => setUri(e.target.value)}
+              placeholder="https://example.com/metadata.json"
+              className="bg-gray-900 border-gray-700 text-white"
+              data-testid="input-uri"
+            />
+          </div>
 
-            <Button
-              onClick={handleUpdate}
-              disabled={loading || !mintAddress}
-              className="w-full bg-purple-600 hover:bg-purple-700"
-              data-testid="button-update"
-            >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update Metadata
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          <div>
+            <Label htmlFor="description" className="text-white">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Token description..."
+              className="bg-gray-900 border-gray-700 text-white"
+              data-testid="input-description"
+            />
+          </div>
+
+          <Button
+            onClick={handleUpdate}
+            disabled={loading || !isConnected || !mintAddress}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+            data-testid="button-update"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Updating Metadata...
+              </>
+            ) : !isConnected ? (
+              <>
+                <Wallet className="mr-2 h-4 w-4" />
+                Connect Wallet to Update Metadata
+              </>
+            ) : (
+              <>
+                <Image className="mr-2 h-4 w-4" />
+                Update Metadata
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
     </MainLayout>
   );

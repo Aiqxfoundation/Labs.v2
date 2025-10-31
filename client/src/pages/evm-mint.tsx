@@ -81,99 +81,97 @@ export default function EvmMint() {
           </p>
         </div>
 
-        {!isConnected ? (
-          <Card className="border-gray-800">
+        {!isCorrectNetwork && isConnected && (
+          <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-8 w-8 text-cyan-500" />
-                <div>
-                  <p className="font-semibold text-white">Connect Your Wallet</p>
-                  <p className="text-sm text-gray-400">Use the "Connect Wallet" button to mint tokens</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-500">Wrong network detected</p>
+                <Button
+                  onClick={() => switchChain(currentChain?.chainId || 1)}
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-switch-network"
+                >
+                  Switch to {currentChain?.name}
+                </Button>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <>
-            {!isCorrectNetwork && (
-              <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-yellow-500">Wrong network detected</p>
-                    <Button
-                      onClick={() => switchChain(currentChain?.chainId || 1)}
-                      variant="outline"
-                      size="sm"
-                      data-testid="button-switch-network"
-                    >
-                      Switch to {currentChain?.name}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            <Card className="border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Plus className="h-5 w-5 text-cyan-500" />
-                  Mint Tokens
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Create new tokens and send them to a recipient address
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
-                  <Input
-                    id="token-address"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-token-address"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="recipient" className="text-white">Recipient Address</Label>
-                  <Input
-                    id="recipient"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="0x..."
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-recipient"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="amount" className="text-white">Amount</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.0"
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-amount"
-                  />
-                </div>
-
-                <Button
-                  onClick={handleMint}
-                  disabled={loading || !tokenAddress || !recipient || !amount}
-                  className="w-full bg-cyan-600 hover:bg-cyan-700"
-                  data-testid="button-mint"
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Mint Tokens
-                </Button>
-              </CardContent>
-            </Card>
-          </>
         )}
+
+        <Card className="border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Plus className="h-5 w-5 text-cyan-500" />
+              Mint Tokens
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Create new tokens and send them to a recipient address
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
+              <Input
+                id="token-address"
+                value={tokenAddress}
+                onChange={(e) => setTokenAddress(e.target.value)}
+                placeholder="0x..."
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-token-address"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="recipient" className="text-white">Recipient Address</Label>
+              <Input
+                id="recipient"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                placeholder="0x..."
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-recipient"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="amount" className="text-white">Amount</Label>
+              <Input
+                id="amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.0"
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-amount"
+              />
+            </div>
+
+            <Button
+              onClick={handleMint}
+              disabled={loading || !isConnected || !tokenAddress || !recipient || !amount}
+              className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
+              data-testid="button-mint"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Minting Tokens...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Mint
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Mint Tokens
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );

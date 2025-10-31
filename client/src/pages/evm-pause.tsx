@@ -108,88 +108,98 @@ export default function EvmPause() {
           </p>
         </div>
 
-        {!isConnected ? (
-          <Card className="border-gray-800">
+        {!isCorrectNetwork && isConnected && (
+          <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-8 w-8 text-cyan-500" />
-                <div>
-                  <p className="font-semibold text-white">Connect Your Wallet</p>
-                  <p className="text-sm text-gray-400">Use the "Connect Wallet" button to manage token pause state</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-500">Wrong network detected</p>
+                <Button
+                  onClick={() => switchChain(currentChain?.chainId || 1)}
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-switch-network"
+                >
+                  Switch to {currentChain?.name}
+                </Button>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <>
-            {!isCorrectNetwork && (
-              <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-yellow-500">Wrong network detected</p>
-                    <Button
-                      onClick={() => switchChain(currentChain?.chainId || 1)}
-                      variant="outline"
-                      size="sm"
-                      data-testid="button-switch-network"
-                    >
-                      Switch to {currentChain?.name}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+        )}
 
-            <Card className="border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Pause className="h-5 w-5 text-purple-500" />
-                  Pause Controls
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Pause or unpause all token transfers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
-                  <Input
-                    id="token-address"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="bg-gray-900 border-gray-700 text-white"
-                    data-testid="input-token-address"
-                  />
-                </div>
+        <Card className="border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Pause className="h-5 w-5 text-purple-500" />
+              Pause Controls
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Pause or unpause all token transfers
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="token-address" className="text-white">Token Contract Address</Label>
+              <Input
+                id="token-address"
+                value={tokenAddress}
+                onChange={(e) => setTokenAddress(e.target.value)}
+                placeholder="0x..."
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-token-address"
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    onClick={handlePause}
-                    disabled={loading || !tokenAddress}
-                    className="bg-red-600 hover:bg-red-700"
-                    data-testid="button-pause"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                onClick={handlePause}
+                disabled={loading || !isConnected || !tokenAddress}
+                className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                data-testid="button-pause"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Pausing...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Pause
+                  </>
+                ) : (
+                  <>
                     <Pause className="mr-2 h-4 w-4" />
                     Pause
-                  </Button>
+                  </>
+                )}
+              </Button>
 
-                  <Button
-                    onClick={handleUnpause}
-                    disabled={loading || !tokenAddress}
-                    className="bg-green-600 hover:bg-green-700"
-                    data-testid="button-unpause"
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button
+                onClick={handleUnpause}
+                disabled={loading || !isConnected || !tokenAddress}
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                data-testid="button-unpause"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Unpausing...
+                  </>
+                ) : !isConnected ? (
+                  <>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet to Unpause
+                  </>
+                ) : (
+                  <>
                     <Play className="mr-2 h-4 w-4" />
                     Unpause
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );

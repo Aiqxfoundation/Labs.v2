@@ -124,136 +124,150 @@ export default function SolanaAuthorityTools() {
         </p>
       </div>
 
-      {!isConnected ? (
+      <div className="space-y-6">
+        <Alert className="border-yellow-800 bg-yellow-900/10">
+          <AlertCircle className="h-4 w-4 text-yellow-500" />
+          <AlertDescription className="text-yellow-200">
+            Warning: Authority operations are permanent. Make sure you understand the implications before proceeding.
+          </AlertDescription>
+        </Alert>
+
         <Card className="border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button to manage authorities</p>
-              </div>
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Shield className="h-5 w-5 text-cyan-500" />
+              Transfer Authority
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Transfer token authority to another address
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="transfer-mint" className="text-white">Token Mint Address</Label>
+              <Input
+                id="transfer-mint"
+                value={transferMint}
+                onChange={(e) => setTransferMint(e.target.value)}
+                placeholder="Enter token mint address"
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-transfer-mint"
+              />
             </div>
+
+            <div>
+              <Label htmlFor="authority-type" className="text-white">Authority Type</Label>
+              <Select value={transferType} onValueChange={(v: any) => setTransferType(v)}>
+                <SelectTrigger className="bg-gray-900 border-gray-700 text-white" data-testid="select-transfer-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mint">Mint Authority</SelectItem>
+                  <SelectItem value="freeze">Freeze Authority</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="new-authority" className="text-white">New Authority Address</Label>
+              <Input
+                id="new-authority"
+                value={newAuthority}
+                onChange={(e) => setNewAuthority(e.target.value)}
+                placeholder="Enter new authority address"
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-new-authority"
+              />
+            </div>
+
+            <Button
+              onClick={handleTransfer}
+              disabled={loading || !isConnected || !transferMint || !newAuthority}
+              className="w-full bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
+              data-testid="button-transfer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Transferring Authority...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Transfer Authority
+                </>
+              ) : (
+                <>
+                  <Shield className="mr-2 h-4 w-4" />
+                  Transfer Authority
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
-      ) : (
-        <div className="space-y-6">
-          <Alert className="border-yellow-800 bg-yellow-900/10">
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-            <AlertDescription className="text-yellow-200">
-              Warning: Authority operations are permanent. Make sure you understand the implications before proceeding.
-            </AlertDescription>
-          </Alert>
 
-          <Card className="border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Shield className="h-5 w-5 text-cyan-500" />
-                Transfer Authority
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Transfer token authority to another address
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="transfer-mint" className="text-white">Token Mint Address</Label>
-                <Input
-                  id="transfer-mint"
-                  value={transferMint}
-                  onChange={(e) => setTransferMint(e.target.value)}
-                  placeholder="Enter token mint address"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-transfer-mint"
-                />
-              </div>
+        <Card className="border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Shield className="h-5 w-5 text-red-500" />
+              Revoke Authority
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Permanently revoke token authority (irreversible)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="revoke-mint" className="text-white">Token Mint Address</Label>
+              <Input
+                id="revoke-mint"
+                value={revokeMint}
+                onChange={(e) => setRevokeMint(e.target.value)}
+                placeholder="Enter token mint address"
+                className="bg-gray-900 border-gray-700 text-white"
+                data-testid="input-revoke-mint"
+              />
+            </div>
 
-              <div>
-                <Label htmlFor="authority-type" className="text-white">Authority Type</Label>
-                <Select value={transferType} onValueChange={(v: any) => setTransferType(v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-700 text-white" data-testid="select-transfer-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mint">Mint Authority</SelectItem>
-                    <SelectItem value="freeze">Freeze Authority</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="revoke-type" className="text-white">Authority Type</Label>
+              <Select value={revokeType} onValueChange={(v: any) => setRevokeType(v)}>
+                <SelectTrigger className="bg-gray-900 border-gray-700 text-white" data-testid="select-revoke-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mint">Mint Authority</SelectItem>
+                  <SelectItem value="freeze">Freeze Authority</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div>
-                <Label htmlFor="new-authority" className="text-white">New Authority Address</Label>
-                <Input
-                  id="new-authority"
-                  value={newAuthority}
-                  onChange={(e) => setNewAuthority(e.target.value)}
-                  placeholder="Enter new authority address"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-new-authority"
-                />
-              </div>
-
-              <Button
-                onClick={handleTransfer}
-                disabled={loading || !transferMint || !newAuthority}
-                className="w-full bg-cyan-600 hover:bg-cyan-700"
-                data-testid="button-transfer"
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Transfer Authority
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Shield className="h-5 w-5 text-red-500" />
-                Revoke Authority
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Permanently revoke token authority (irreversible)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="revoke-mint" className="text-white">Token Mint Address</Label>
-                <Input
-                  id="revoke-mint"
-                  value={revokeMint}
-                  onChange={(e) => setRevokeMint(e.target.value)}
-                  placeholder="Enter token mint address"
-                  className="bg-gray-900 border-gray-700 text-white"
-                  data-testid="input-revoke-mint"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="revoke-type" className="text-white">Authority Type</Label>
-                <Select value={revokeType} onValueChange={(v: any) => setRevokeType(v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-700 text-white" data-testid="select-revoke-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mint">Mint Authority</SelectItem>
-                    <SelectItem value="freeze">Freeze Authority</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                onClick={handleRevoke}
-                disabled={loading || !revokeMint}
-                className="w-full bg-red-600 hover:bg-red-700"
-                data-testid="button-revoke"
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Revoke Authority (Permanent)
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            <Button
+              onClick={handleRevoke}
+              disabled={loading || !isConnected || !revokeMint}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
+              data-testid="button-revoke"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Revoking Authority...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Revoke Authority
+                </>
+              ) : (
+                <>
+                  <Shield className="mr-2 h-4 w-4" />
+                  Revoke Authority (Permanent)
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
     </MainLayout>
   );

@@ -625,42 +625,20 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
         </p>
       </div>
 
-      {/* Wallet Connection Card */}
-      {!isConnected ? (
-        <Card className="mb-6 border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Wallet className="h-8 w-8 text-cyan-500" />
-              <div>
-                <p className="font-semibold text-white">Connect Your Wallet</p>
-                <p className="text-sm text-gray-400">Use the "Connect Wallet" button in the top-right corner to access multisender tools</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="mb-6 border-green-800/50 bg-green-500/5">
+      {/* Wallet Connection Card - Only show when connected and network info is relevant */}
+      {isConnected && !isCorrectNetwork && (
+        <Card className="mb-6 border-yellow-800/50 bg-yellow-500/5">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-                <div>
-                  <p className="font-semibold text-white">Wallet Connected</p>
-                  <p className="text-sm text-gray-400 font-mono">
-                    {address?.slice(0, 6)}...{address?.slice(-4)}
-                  </p>
-                </div>
-              </div>
-              {!isCorrectNetwork && (
-                <Button
-                  onClick={() => switchChain(currentChain?.chainId || 1)}
-                  variant="outline"
-                  size="sm"
-                  data-testid="button-switch-network"
-                >
-                  Switch to {chainName}
-                </Button>
-              )}
+              <p className="text-yellow-500">Wrong network detected</p>
+              <Button
+                onClick={() => switchChain(currentChain?.chainId || 1)}
+                variant="outline"
+                size="sm"
+                data-testid="button-switch-network"
+              >
+                Switch to {chainName}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -874,13 +852,18 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                 <Button
                   onClick={executeMultisend}
                   disabled={!isConnected || isProcessing || recipients.length === 0 || !isCorrectNetwork}
-                  className="flex-1 bg-cyan-500 hover:bg-cyan-600"
+                  className="flex-1 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-50"
                   data-testid="button-execute-multisend"
                 >
                   {isProcessing ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Processing...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Send
                     </>
                   ) : (
                     <>
@@ -959,14 +942,25 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                 
                 <Button 
                   onClick={handleMint}
-                  className="w-full bg-green-500 hover:bg-green-600"
+                  className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50"
                   disabled={!isConnected || authorityProcessing}
                   data-testid="button-mint-tokens"
                 >
                   {authorityProcessing ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Minting...</>
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Minting...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Mint
+                    </>
                   ) : (
-                    <><Plus className="h-4 w-4 mr-2" />Mint Tokens</>
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Mint Tokens
+                    </>
                   )}
                 </Button>
               </div>
@@ -1019,14 +1013,25 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                 
                 <Button 
                   onClick={handleBurn}
-                  className="w-full bg-red-500 hover:bg-red-600"
+                  className="w-full bg-red-500 hover:bg-red-600 disabled:opacity-50"
                   disabled={!isConnected || authorityProcessing}
                   data-testid="button-burn-tokens"
                 >
                   {authorityProcessing ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Burning...</>
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Burning...
+                    </>
+                  ) : !isConnected ? (
+                    <>
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet to Burn
+                    </>
                   ) : (
-                    <><Trash2 className="h-4 w-4 mr-2" />Burn Tokens</>
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Burn Tokens
+                    </>
                   )}
                 </Button>
               </div>
@@ -1069,30 +1074,50 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     onClick={handlePause}
-                    className="bg-yellow-500 hover:bg-yellow-600"
+                    className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50"
                     disabled={!isConnected || authorityProcessing}
                     data-testid="button-pause-token"
                   >
                     {authorityProcessing ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Pausing...
+                      </>
+                    ) : !isConnected ? (
+                      <>
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Connect Wallet to Pause
+                      </>
                     ) : (
-                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <>
+                        <AlertCircle className="h-4 w-4 mr-2" />
+                        Pause
+                      </>
                     )}
-                    Pause
                   </Button>
                   <Button 
                     onClick={handleUnpause}
                     variant="outline"
-                    className="border-green-500 text-green-500 hover:bg-green-500/10"
+                    className="border-green-500 text-green-500 hover:bg-green-500/10 disabled:opacity-50"
                     disabled={!isConnected || authorityProcessing}
                     data-testid="button-unpause-token"
                   >
                     {authorityProcessing ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Unpausing...
+                      </>
+                    ) : !isConnected ? (
+                      <>
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Connect Wallet to Unpause
+                      </>
                     ) : (
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Unpause
+                      </>
                     )}
-                    Unpause
                   </Button>
                 </div>
               </div>
@@ -1148,14 +1173,25 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                   </div>
                   <Button 
                     onClick={handleTransferOwnership}
-                    className="w-full bg-purple-500 hover:bg-purple-600"
+                    className="w-full bg-purple-500 hover:bg-purple-600 disabled:opacity-50"
                     disabled={!isConnected || authorityProcessing}
                     data-testid="button-transfer-ownership"
                   >
                     {authorityProcessing ? (
-                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Transferring...</>
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Transferring...
+                      </>
+                    ) : !isConnected ? (
+                      <>
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Connect Wallet to Transfer Ownership
+                      </>
                     ) : (
-                      <><Wallet className="h-4 w-4 mr-2" />Transfer Ownership</>
+                      <>
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Transfer Ownership
+                      </>
                     )}
                   </Button>
                 </div>
@@ -1168,42 +1204,86 @@ export default function EvmTools({ chainId, chainName }: EvmToolsProps) {
                     <Button 
                       onClick={() => handleRevokeAuthority('mint')}
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500/10"
+                      className="border-red-500 text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                       disabled={!isConnected || authorityProcessing}
                       data-testid="button-revoke-mint"
                     >
-                      {authorityProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Revoke Minting Authority
+                      {authorityProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Revoking...
+                        </>
+                      ) : !isConnected ? (
+                        <>
+                          <Wallet className="h-4 w-4 mr-2" />
+                          Connect Wallet to Revoke
+                        </>
+                      ) : (
+                        'Revoke Minting Authority'
+                      )}
                     </Button>
                     <Button 
                       onClick={() => handleRevokeAuthority('pause')}
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500/10"
+                      className="border-red-500 text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                       disabled={!isConnected || authorityProcessing}
                       data-testid="button-revoke-pause"
                     >
-                      {authorityProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Revoke Pausing Authority
+                      {authorityProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Revoking...
+                        </>
+                      ) : !isConnected ? (
+                        <>
+                          <Wallet className="h-4 w-4 mr-2" />
+                          Connect Wallet to Revoke
+                        </>
+                      ) : (
+                        'Revoke Pausing Authority'
+                      )}
                     </Button>
                     <Button 
                       onClick={() => handleRevokeAuthority('blacklist')}
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500/10"
+                      className="border-red-500 text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                       disabled={!isConnected || authorityProcessing}
                       data-testid="button-revoke-blacklist"
                     >
-                      {authorityProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Revoke Blacklisting Authority
+                      {authorityProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Revoking...
+                        </>
+                      ) : !isConnected ? (
+                        <>
+                          <Wallet className="h-4 w-4 mr-2" />
+                          Connect Wallet to Revoke
+                        </>
+                      ) : (
+                        'Revoke Blacklisting Authority'
+                      )}
                     </Button>
                     <Button 
                       onClick={() => handleRevokeAuthority('ownership')}
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500/10"
+                      className="border-red-500 text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                       disabled={!isConnected || authorityProcessing}
                       data-testid="button-renounce-ownership"
                     >
-                      {authorityProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Renounce Ownership (Permanent)
+                      {authorityProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Renouncing...
+                        </>
+                      ) : !isConnected ? (
+                        <>
+                          <Wallet className="h-4 w-4 mr-2" />
+                          Connect Wallet to Renounce
+                        </>
+                      ) : (
+                        'Renounce Ownership (Permanent)'
+                      )}
                     </Button>
                   </div>
                 </div>
