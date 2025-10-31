@@ -1,7 +1,7 @@
 # AIQX Labs - Professional Multi-Chain Token Platform
 
 ## Overview
-AIQX Labs is a production-ready multi-chain token creation and management platform supporting Ethereum, BSC, Polygon, and Solana. The platform features uniform navigation across all chains, smart contract-based feature embedding for EVM tokens, explicit authority management for Solana tokens, integrated IPFS support via Pinata, and a comprehensive configuration system for production deployment.
+AIQX Labs is a production-ready multi-chain token creation and management platform supporting Ethereum (Mainnet & Sepolia), BNB Smart Chain (Mainnet & Testnet), and Solana (Mainnet & Testnet). The platform features uniform navigation across all chains, smart contract-based feature embedding for EVM tokens, explicit authority management for Solana tokens, integrated IPFS support via Pinata, and a comprehensive configuration system for production deployment.
 
 ## User Preferences
 ### Development Workflow
@@ -22,7 +22,7 @@ AIQX Labs is a production-ready multi-chain token creation and management platfo
 The platform features a chain-aware architecture where each blockchain is treated as an independent system. Key architectural decisions include:
 
 ### UI/UX Decisions
-- **Uniform Multi-Chain Navigation**: All supported chains (Ethereum, BSC, Polygon, Solana) display identical sidebar structures with consistent tool access (Create Token, Manage Tokens, Mint Tokens, Burn Tokens, Freeze Account, Authority Tools, Update Metadata, Multisender).
+- **Uniform Multi-Chain Navigation**: All supported chains (Ethereum Mainnet/Sepolia, BSC Mainnet/Testnet, Solana Mainnet/Testnet) display identical sidebar structures with consistent tool access. EVM chains include Blacklist Addresses tool, while Solana chains include Freeze Account tool.
 - **Global Wallet Connection**: A single wallet connection in the top navbar persists across all pages and chain switches, eliminating the need for per-page connection buttons.
 - **Explicit Solana Authority UI**: Token authority management uses professional radio button groups with clear "Keep Authority" and "Revoke Authority" options, color-coded feedback (green/red), and permanent decision warnings.
 - **Professional Transaction Feedback**: A dedicated modal provides real-time transaction status updates (Processing, Confirming, Success/Failed) with explorer links and user-friendly error messages.
@@ -40,7 +40,8 @@ The platform features a chain-aware architecture where each blockchain is treate
     - **Auto-reconnect**: Wallet states persist across page refreshes with automatic reconnection on app load.
     - **Global Connection**: Unified wallet management in top navbar across all pages and chain switches, with automatic disconnection when switching between EVM and Solana ecosystems.
 - **Token Creation**:
-    - **EVM Chains**: Advanced smart contract system using constructor flags to enable/disable features at deployment time. Supports Mintable, Burnable, Pausable, Capped Supply, Transfer Tax, and Blacklist features. Uses OpenZeppelin-compatible pattern where all functions exist in ABI but logic respects feature flags (`server/contracts/evmTokenTemplates.ts`).
+    - **EVM Chains**: Advanced smart contract system using constructor flags to enable/disable features at deployment time. Supports Mintable, Burnable, Pausable, Capped Supply, Transfer Tax, and Blacklist features. Uses OpenZeppelin-compatible pattern where all functions exist in ABI but logic respects feature flags (`server/contracts/ERC20Advanced.sol`).
+    - **Blacklist Feature**: EVM chains have dedicated blacklist management tool (`client/src/pages/evm-blacklist.tsx`) providing address-level transfer blocking, equivalent to Solana's freeze account feature. Owner can blacklist/unblacklist specific addresses, preventing them from sending or receiving tokens.
     - **Solana**: SPL token creation with explicit Keep/Revoke authority management via radio button UI. Supports Mint Authority, Freeze Authority, and Update Authority with permanent decision warnings. Metadata support includes IPFS integration for images.
 - **IPFS Integration**: Production-ready Pinata integration with utilities for uploading images, metadata, and logo files (`client/src/utils/ipfsUploader.ts`). Supports environment-based configuration with graceful fallbacks.
 - **Configuration System**: App-wide configuration management (`client/src/config/app-config.ts`) with feature detection for IPFS and Alchemy services, environment variable support, and configuration status checking.
@@ -55,7 +56,7 @@ The platform features a chain-aware architecture where each blockchain is treate
 - **Stateless Operation**: Deployment is configured for `autoscale` to support stateless operation.
 
 ## External Dependencies
-- **Blockchain Networks**: Ethereum, Binance Smart Chain (BSC), Polygon, Solana
+- **Blockchain Networks**: Ethereum (Mainnet & Sepolia), Binance Smart Chain (Mainnet & Testnet), Solana (Mainnet & Testnet)
 - **Wallet Integrations**:
     - **EVM**: MetaMask, Trust Wallet, OKX Wallet, Bitget Wallet, Binance Web3 Wallet, Coinbase Wallet (EIP-6963 compliant, global connection in navbar)
     - **Solana**: Phantom, OKX Wallet, Solflare, Backpack (native multi-wallet support, global connection in navbar)
@@ -120,3 +121,10 @@ PORT=5000
    - "Connect Wallet" button exclusively appears in the header, never blocking page content
    - Consistent professional UX pattern applied across Create Token, Mint, Burn, Pause, Freeze, Authority, Metadata, and Multisender pages
    - All pages fully browsable and forms accessible without wallet connection
+11. **Chain Migration & EVM Blacklist Feature (October 31, 2025)**:
+   - **Chain Consolidation**: Removed Polygon, Arbitrum, and Base support - platform now exclusively supports Ethereum (Mainnet & Sepolia), BSC (Mainnet & Testnet), and Solana (Mainnet & Testnet)
+   - **EVM Blacklist Implementation**: Created comprehensive blacklist management tool (`client/src/pages/evm-blacklist.tsx`) providing EVM equivalent of Solana's freeze account feature
+   - **Feature Parity**: All EVM chains now have `freezeAccounts: true` feature flag with dedicated "Blacklist Addresses" tool in navigation
+   - **Type-Safe Implementation**: Fixed TypeScript chain lookup using `SUPPORTED_CHAINS[chainId as ChainId]` pattern for type safety
+   - **Verified Contract**: ERC20Advanced.sol contract supports 6 modular features (Mintable, Burnable, Pausable, Capped, Tax, Blacklist) with production-ready Solidity 0.8.20 implementation
+   - **UI Consistency**: Blacklist tool follows same UX patterns as other EVM tools with owner-gated operations, toast notifications, and real-time status checks
