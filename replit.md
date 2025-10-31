@@ -113,3 +113,10 @@ PORT=5000
    - Upgraded unified-wallet-modal with availability detection and install prompts
    - Pages now fully browsable without wallet connection; wallet only required for blockchain actions
    - Global provider map for concurrent multi-wallet detection in EIP-6963 environments
+10. **Wallet Detection Improvements & Professional UX (October 31, 2025)**:
+   - Implemented retry logic with 10 attempts at 300ms intervals for both Solana and EVM wallet detection to handle late-injected browser extensions
+   - Removed all blocking "Connect Your Wallet" cards from 15+ pages across the platform
+   - Forms are now always visible without wallet connection - submit buttons show "Connect Wallet to [Action]" when disconnected
+   - "Connect Wallet" button exclusively appears in the header, never blocking page content
+   - Consistent professional UX pattern applied across Create Token, Mint, Burn, Pause, Freeze, Authority, Metadata, and Multisender pages
+   - All pages fully browsable and forms accessible without wallet connection
