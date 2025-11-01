@@ -1,5 +1,6 @@
 import { useChain, ChainId } from '@/contexts/ChainContext';
 import { CHAIN_DEFINITIONS } from '@/config/chains';
+import { useLocation } from 'wouter';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,11 +31,17 @@ const CHAIN_FAMILIES = {
 
 export function ChainSwitcher() {
   const { selectedChain, setSelectedChain } = useChain();
+  const [, setLocation] = useLocation();
   const currentChain = CHAIN_DEFINITIONS[selectedChain];
 
   if (!currentChain) {
     return null;
   }
+
+  const handleChainSwitch = (chainId: ChainId) => {
+    setSelectedChain(chainId);
+    setLocation(`/chain/${chainId}`);
+  };
 
   const Icon = currentChain.icon;
 
@@ -79,7 +86,7 @@ export function ChainSwitcher() {
               return (
                 <DropdownMenuItem
                   key={chainId}
-                  onClick={() => setSelectedChain(chainId)}
+                  onClick={() => handleChainSwitch(chainId)}
                   disabled={isSelected}
                   className="gap-2 cursor-pointer"
                   data-testid={`menu-item-chain-${chainId}`}

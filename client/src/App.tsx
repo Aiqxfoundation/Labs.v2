@@ -15,6 +15,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 
 // Lazy load all chain-specific pages to optimize bundle size
+const ChainOverview = lazy(() => import("@/pages/chain-overview"));
 const ChainCreate = lazy(() => import("@/pages/chain-create"));
 const ChainManage = lazy(() => import("@/pages/chain-manage"));
 const ChainTools = lazy(() => import("@/pages/chain-tools"));
@@ -73,6 +74,7 @@ function Router() {
         <Route path="/manage-authorities" component={ManageAuthorities} />
         
         {/* Chain-Based Routes - All chains use unified routing */}
+        <Route path="/chain/:chainId" component={ChainOverview} />
         <Route path="/chain/:chainId/create" component={ChainCreate} />
         <Route path="/chain/:chainId/manage" component={ChainManage} />
         <Route path="/chain/:chainId/tools" component={ChainTools} />
